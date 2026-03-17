@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hangi USCA Şarabısın?</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Didact+Gothic&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8d08a;
+    --cream: #f7f0e3;
+    --dark: #1a0a0a;
+    --muted: #8a7060;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--dark);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .app {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .screen {
+    display: none;
+    width: 100%;
+    max-width: 680px;
+    animation: fadeIn 0.7s ease forwards;
+  }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* LOGO */
+  .logo-area {
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    font-weight: 400;
+  }
+  .logo-sep { width: 1px; height: 20px; background: rgba(201,168,76,0.3); }
+  .logo-sub {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* INTRO */
+  .intro-label {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .intro-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--cream);
+  }
+  .intro-title em { font-style: italic; color: var(--gold-light); }
+  .intro-divider {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 2rem 0;
+  }
+  .intro-desc {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #c4b09a;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+  }
+  .wine-icons { display: flex; gap: 0.5rem; margin-bottom: 2.5rem; }
+  .wine-dot { width: 8px; height: 8px; border-radius: 50%; opacity: 0.6; }
+
+  /* BUTTON */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 1rem 2.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .btn-primary:hover, .btn-primary:active {
+    background: var(--gold);
+    color: var(--dark);
+  }
+
+  /* QUESTION */
+  .q-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+  }
+  .q-progress-bar {
+    flex: 1; height: 1px;
+    background: rgba(201,168,76,0.2);
+    margin-right: 1.5rem;
+  }
+  .q-progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.5s ease;
+  }
+  .q-counter {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .q-category {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+  }
+  .q-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 2rem;
+  }
+
+  /* OPTIONS */
+  .options-grid { display: flex; flex-direction: column; gap: 0.65rem; }
+  .option-btn {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--cream);
+    padding: 1.1rem 1.4rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.3s ease;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(201,168,76,0.06);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .option-btn:hover { border-color: var(--gold); transform: translateX(4px); }
+  .option-btn:hover::before { opacity: 1; }
+  .option-letter {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    min-width: 20px;
+    padding-top: 3px;
+    opacity: 0.7;
+  }
+  .option-text { flex: 1; }
+  .option-sub {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+    display: block;
+    margin-top: 0.2rem;
+  }
+
+  /* RESULT */
+  .result-eyebrow {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .result-name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.3rem;
+  }
+  .result-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--gold-light);
+    margin-bottom: 2rem;
+  }
+  .result-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 2rem 0;
+  }
+  .result-personality {
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: #d4c4b0;
+    font-weight: 300;
+    margin-bottom: 2rem;
+  }
+  .result-personality strong { color: var(--gold-light); font-weight: 400; }
+
+  /* WINE INFO BOX */
+  .result-wine-info {
+    background: rgba(201,168,76,0.05);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .result-wine-info h3 {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .wine-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+  .wine-tag {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-light);
+  }
+  .wine-desc {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .result-grape {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .grape-label {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .grape-value { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--cream); }
+  .color-swatch { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+
+  /* SHAKESPEARE BLOCK */
+  .sonnet-block {
+    position: relative;
+    border-left: 2px solid var(--gold);
+    padding: 1.5rem 1.5rem 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+    background: rgba(201,168,76,0.03);
+  }
+  .sonnet-label {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .sonnet-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 2.8vw, 1.5rem);
+    line-height: 1.75;
+    color: #f5ede0;
+    margin-bottom: 1.1rem;
+    quotes: none;
+  }
+  .sonnet-ornament {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--gold);
+    opacity: 0.15;
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .sonnet-translation {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: #c8b89e;
+    font-style: italic;
+    margin-bottom: 0.85rem;
+    line-height: 1.65;
+  }
+  .sonnet-connection {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: #b8a48e;
+    line-height: 1.65;
+  }
+  .sonnet-source {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.7);
+    margin-top: 1rem;
+    display: block;
+  }
+
+  /* RESTART */
+  .btn-restart {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--muted);
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.8rem 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+  }
+  .btn-restart:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* EXTRAS GRID */
+  .extras-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .extra-card {
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.13);
+    padding: 1.1rem 1.2rem;
+  }
+  .extra-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .extra-card-label {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .extra-card-label span { opacity: 0.8; }
+  .extra-food-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .extra-food-list li {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: #d4c4b0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .extra-food-list li::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+  .extra-music {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: #d4c4b0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .music-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 0.3rem 0.7rem;
+    transition: all 0.2s ease;
+  }
+  .music-link-btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+  .extra-moment {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: #d4c4b0;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* SHARE */
+  .share-area {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .btn-share { display: none; } /* replaced by share-panel */
+  .share-copied { display: none; }
+
+  /* SHARE PANEL */
+  .share-panel {
+    margin-bottom: 1.5rem;
+  }
+  .share-panel-label {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+    display: block;
+  }
+  .share-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+  .share-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: all 0.25s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .share-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .share-whatsapp { color: #25D366; border-color: rgba(37,211,102,0.3); }
+  .share-whatsapp:hover, .share-whatsapp:active { background: rgba(37,211,102,0.1); border-color: #25D366; }
+  .share-twitter { color: #e8d08a; border-color: rgba(232,208,138,0.3); }
+  .share-twitter:hover, .share-twitter:active { background: rgba(232,208,138,0.1); border-color: #e8d08a; }
+  .share-instagram { color: #E1306C; border-color: rgba(225,48,108,0.3); }
+  .share-instagram:hover, .share-instagram:active { background: rgba(225,48,108,0.1); border-color: #E1306C; }
+  .share-copy { color: var(--gold); border-color: rgba(201,168,76,0.3); }
+  .share-copy:hover, .share-copy:active { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+  .share-feedback {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: block;
+    margin-top: 0.6rem;
+  }
+  .share-feedback.visible { opacity: 1; }
+
+  /* CARD DOWNLOAD */
+  .card-preview-wrap {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .card-preview-label {
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  #result-card-canvas {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 2px;
+    display: block;
+  }
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--muted);
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.75rem;
+  }
+  .btn-download:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* WINE GLASS ANIMATION */
+  .glass-wrap {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+  }
+  .glass-svg-wrap {
+    position: relative;
+    width: 44px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+  .glass-svg { width: 44px; height: 64px; overflow: visible; }
+
+  /* wine fill level — animated via JS */
+  #wine-fill-rect {
+    transition: y 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ripple on fill */
+  @keyframes ripple {
+    0%   { opacity: 0.6; transform: scaleX(1); }
+    50%  { opacity: 0.3; transform: scaleX(1.08); }
+    100% { opacity: 0; transform: scaleX(1); }
+  }
+  .wine-ripple {
+    animation: ripple 0.7s ease forwards;
+    transform-origin: center;
+  }
+    .option-btn { padding: 0.9rem 1rem; font-size: 0.98rem; }
+    .intro-title { font-size: 2.5rem; }
+    .sonnet-quote { font-size: 1.1rem; }
+    .extras-grid { grid-template-columns: 1fr; }
+    .extra-card.full-width { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="logo-area">
+      <span class="logo-text">USCA</span>
+      <div class="logo-sep"></div>
+      <span class="logo-sub">Şarapçılık</span>
+    </div>
+    <span class="intro-label">Kişilik & Şarap Testi</span>
+    <h1 class="intro-title">Hangi USCA<br><em>Şarabısın?</em></h1>
+    <div class="intro-divider"></div>
+    <p class="intro-desc">Her şarabın kendine has bir ruhu vardır. Sana birkaç soru soracağız — cevapların, hangi USCA şarabının ruhunu taşıdığını ortaya çıkaracak.</p>
+    <div class="wine-icons">
+      <div class="wine-dot" style="background:#e8d8a0"></div>
+      <div class="wine-dot" style="background:#d4b896"></div>
+      <div class="wine-dot" style="background:#d4728a"></div>
+      <div class="wine-dot" style="background:#8b2635"></div>
+      <div class="wine-dot" style="background:#5c1a1a"></div>
+      <div class="wine-dot" style="background:#3a0f2a"></div>
+    </div>
+    <button class="btn-primary" id="btn-start">
+      <span>Teste Başla</span>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="screen" id="screen-question">
+    <div class="logo-area">
+      <span class="logo-text">USCA</span>
+      <div class="logo-sep"></div>
+      <span class="logo-sub">Şarapçılık</span>
+    </div>
+    <div class="q-header">
+      <div class="q-progress-bar">
+        <div class="q-progress-fill" id="progress-fill"></div>
+      </div>
+      <!-- Wine glass -->
+      <div class="glass-svg-wrap">
+        <svg class="glass-svg" viewBox="0 0 44 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="glass-clip">
+              <!-- Bowl shape: trapezoid narrowing to stem -->
+              <path d="M6,4 L38,4 L30,38 Q28,44 22,44 Q16,44 14,38 Z"/>
+            </clipPath>
+          </defs>
+          <!-- Wine fill (clipped to bowl) -->
+          <g clip-path="url(#glass-clip)">
+            <rect id="wine-fill-rect" x="4" y="44" width="36" height="0" rx="0"/>
+          </g>
+          <!-- Glass outline - bowl -->
+          <path d="M6,4 L38,4 L30,38 Q28,44 22,44 Q16,44 14,38 Z"
+                stroke="rgba(201,168,76,0.7)" stroke-width="1.5" fill="none"/>
+          <!-- Stem -->
+          <line x1="22" y1="44" x2="22" y2="56" stroke="rgba(201,168,76,0.7)" stroke-width="1.5"/>
+          <!-- Base -->
+          <line x1="12" y1="56" x2="32" y2="56" stroke="rgba(201,168,76,0.7)" stroke-width="1.5"/>
+          <!-- Shine -->
+          <line x1="11" y1="10" x2="14" y2="28" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="q-counter" id="q-counter">1 / 9</span>
+    </div>
+    <div class="q-category" id="q-category"></div>
+    <h2 class="q-text" id="q-text"></h2>
+    <p class="q-sub" id="q-sub"></p>
+    <div class="options-grid" id="options-grid"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="logo-area">
+      <span class="logo-text">USCA</span>
+      <div class="logo-sep"></div>
+      <span class="logo-sub">Şarapçılık</span>
+    </div>
+    <span class="result-eyebrow">Senin şarabın</span>
+    <h2 class="result-name" id="result-name"></h2>
+    <p class="result-subtitle" id="result-subtitle"></p>
+    <div class="result-divider"></div>
+    <p class="result-personality" id="result-personality"></p>
+
+    <!-- Wine Profile -->
+    <div class="result-wine-info">
+      <h3>Şarap Profili</h3>
+      <div class="result-grape">
+        <div class="color-swatch" id="result-swatch"></div>
+        <span class="grape-label">Üzüm</span>
+        <span class="grape-value" id="result-grape"></span>
+      </div>
+      <div class="wine-tags" id="result-tags"></div>
+      <p class="wine-desc" id="result-desc"></p>
+    </div>
+
+    <!-- Shakespeare Sonnet -->
+    <div class="sonnet-block" id="sonnet-block">
+      <span class="sonnet-ornament">"</span>
+      <span class="sonnet-label" id="sonnet-label"></span>
+      <p class="sonnet-quote" id="sonnet-quote"></p>
+      <p class="sonnet-translation" id="sonnet-translation"></p>
+      <p class="sonnet-connection" id="sonnet-connection"></p>
+      <span class="sonnet-source" id="sonnet-source"></span>
+    </div>
+
+    <!-- Food + Music + Moment + Share -->
+    <div class="extras-grid" id="extras-grid"></div>
+
+    <!-- Card Preview -->
+    <div class="card-preview-wrap">
+      <span class="card-preview-label">Paylaşılabilir Sonuç Kartı</span>
+      <canvas id="result-card-canvas"></canvas>
+      <br>
+      <button class="btn-download" id="btn-download" style="display:none">↓ Kartı İndir</button>
+    </div>
+
+
+    <!-- Share Panel -->
+    <div class="share-panel" id="share-panel" style="display:none">
+      <span class="share-panel-label">Sonucunu Paylaş</span>
+      <div class="share-buttons">
+        <button class="share-btn share-whatsapp" id="share-whatsapp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.535 5.858L.057 23.203a.75.75 0 0 0 .92.921l5.474-1.461A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.524-5.204-1.435l-.373-.223-3.867 1.033 1.059-3.763-.245-.389A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          <span>WhatsApp</span>
+        </button>
+        <button class="share-btn share-twitter" id="share-twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          <span>X / Twitter</span>
+        </button>
+        <button class="share-btn share-instagram" id="share-instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          <span>Instagram / Diğer</span>
+        </button>
+        <button class="share-btn share-copy" id="share-copy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Kopyala</span>
+        </button>
+      </div>
+      <span class="share-feedback" id="share-feedback"></span>
+    </div>
+
+    <button class="btn-restart" id="btn-restart">← Tekrar Dene</button>
+  </div>
+
+</div>
+
+<script>
+const wines = {
+  sonnet5: {
+    name: "Sonnet 5",
+    subtitle: "Bornova Misketi",
+    grape: "Bornova Misketi",
+    color: "#e8d8a0",
+    type: "white",
+    tags: ["Çiçeksi", "Ferah", "Aromatik", "Canlı", "Aperitif"],
+    desc: "Çiçek, yasemin ve portakal çiçeği aromalarıyla dolu; ferah asidite ve tropikal meyve tatlarıyla biten, Ege'nin ruhunu taşıyan aromatik bir beyaz şarap.",
+    personality: `Sen <strong>özgün ve neşelisin</strong> — bir odaya girdiğinde herkes fark eder. Tıpkı Bornova Misketi'nin yoğun çiçeksi aromaları gibi, varlığın hissedilmeden geçilmez. <strong>Duygularını açıkça yaşarsın</strong>, insanları kolayca büyülersin ve çevrendeki enerjiyi yükseltirsin.\n\nGünün ilk ışığında açan bir çiçek gibi tazesin; yorucu rutinlerden değil, anlık güzelliklerden beslenisin. Sezgisel kararlar alırsın ve bu kararlar çoğunlukla doğru çıkar. <strong>Ege rüzgarını içinde taşırsın</strong> — özgür, aromatik, unutulmaz.`,
+    food: ["Ege mezeleri & zeytinyağlılar", "Taze karides & deniz mahsulleri", "Keçi peyniri & kavun"],
+    music: "Vicky Leandros · «L'amour est bleu»",
+    musicLink: "https://www.youtube.com/results?search_query=Vicky+Leandros+L+amour+est+bleu",
+    moment: "Ege'de bir yaz öğleden sonrası — rüzgar, deniz kokusu ve güneşin tam ortası.",
+    sonnet: {
+      label: "Shakespeare · Sonnet V",
+      quote: "Flowers distilled though they with winter meet,\nLeese but their show; their substance still lives sweet.",
+      translation: "Çiçekler kışla yüz yüze gelse de yalnızca görünüşlerini yitirirler; damıtılmış özleri yine de tatlı yaşar.",
+      connection: "Bornova Misketi de tıpkı bu dize gibi — mevsim ne olursa olsun şarapta çiçeksi ve tatlı aromaların özü yaşamaya devam eder.",
+      source: "William Shakespeare, Sonnet V"
+    }
+  },
+  sonnet99: {
+    name: "Sonnet 99",
+    subtitle: "Viognier",
+    grape: "Viognier",
+    color: "#e8cc88",
+    type: "white",
+    tags: ["Dolgun", "Kayısı", "Yuvarlak", "Lüks", "Aromatik"],
+    desc: "Kayısı, şeftali ve portakal çiçeğinin yoğun aromatik zenginliği; ağızda yuvarlak, yağlı bir doku. Rhône'un zarifliğini Ege'ye taşıyan iddialı bir beyaz.",
+    personality: `Sen <strong>zarifsin ve derin bir tadın var</strong>. Hayatın küçük lükslerini fark edersin — iyi bir kumaşın dokusu, mükemmel pişirilmiş bir yemeğin kokusu, doğru söylenmiş tek bir cümle. Viognier gibi <strong>yoğun bir varlığın var</strong>; hafifçe dokunsan bile iz bırakırsın.\n\nİnsanlar sana güçlü kişilik der, sen ise sadece ne istediğini bildiğini düşünürsün. Kararlısın, sabırlısın ve doğru anı beklemeyi seversin. <strong>Olgunluk senin süsündür</strong> — aceleci değil, zamanında çiçek açanlardan.`,
+    food: ["Kremalı tavuk yemekleri", "Sarımsaklı karides güveç", "Olgunlaşmış brie peyniri"],
+    music: "Norah Jones · «Come Away with Me»",
+    musicLink: "https://www.youtube.com/results?search_query=Norah+Jones+Come+Away+With+Me",
+    moment: "Mum ışığında iyi bir akşam yemeği — masada sadece ikili, dışarıda yağmur.",
+    sonnet: {
+      label: "Shakespeare · Sonnet XCIX",
+      quote: "The forward violet thus did I chide:\nSweet thief, whence didst thou steal thy sweet that smells?",
+      translation: "Menekşeyi azarladım: 'Ey tatlı hırsız, bu güzel kokuyu nereden çaldın?'",
+      connection: "Viognier'in çiçeksi ve kayısılı aromaları, sanki doğanın en güzel kokularını kadehin içine çekmiş gibidir — tam da bu dizenin işaret ettiği büyü.",
+      source: "William Shakespeare, Sonnet XCIX"
+    }
+  },
+  sonnet116: {
+    name: "Sonnet 116",
+    subtitle: "Chardonnay & Viognier",
+    grape: "Chardonnay · Viognier",
+    color: "#d4c87a",
+    type: "white",
+    tags: ["Dengeli", "Kremamsı", "Kompleks", "Uyumlu", "Köprü"],
+    desc: "İki beyazın birbirini tamamlaması: Chardonnay'in gövdesi ile Viognier'in aroması bir arada. Elma, armut, kayısı ve hafif kremamsı his — dengeli ve zarif.",
+    personality: `Sen <strong>dengeyi içselleştirmiş nadir bir insansın</strong>. Ne kadar güçlü olduğunu bilirsin ama bunu bağırmak yerine yaşarsın. İki farklı dünyanın dilini konuşabilirsin — hem entelektüel hem duygusal, hem pratik hem de şiirsel.\n\nChardonnay'in asaleti ve Viognier'in sıcaklığı sende buluşmuş gibi: insanlara hem güvenilir hem de ilham verici gelirsin. <strong>Uzlaştırıcısın, bağ kurucusun</strong> — ama yeri geldiğinde duruşundan ödün vermezsin. Kompleksin ama anlaşılması zor değilsin; <strong>tanıyanlar seni severek anlar</strong>.`,
+    food: ["Balık güveç & zeytinyağı", "Zeytinyağlı enginar dolma", "Beyaz etli tavuk sarma"],
+    music: "Sade · «By Your Side»",
+    musicLink: "https://www.youtube.com/results?search_query=Sade+By+Your+Side",
+    moment: "Sonbahar öğleden sonrası — büyük pencere, kitap, soğuyan hava.",
+    sonnet: {
+      label: "Shakespeare · Sonnet CXVI",
+      quote: "Love is not love\nWhich alters when it alteration finds.",
+      translation: "Değişimle değişen şey gerçek aşk değildir.",
+      connection: "Bu kupaj şarap da iki üzümün değişmez uyumunu temsil eder — Chardonnay ve Viognier birbirini tamamlar, dengeden taviz vermez.",
+      source: "William Shakespeare, Sonnet CXVI"
+    }
+  },
+  sonnet8: {
+    name: "Sonnet 8",
+    subtitle: "Öküzgözü Blush",
+    grape: "Öküzgözü",
+    color: "#e8a0b4",
+    type: "rose",
+    tags: ["Ferah", "Canlı", "Yaz", "Çilek", "Neşeli"],
+    desc: "Açık pembe-somon rengi, çilek ve nar aromaları, canlı asidite. Öküzgözü'nün doğal tazeliğiyle yapılmış, yaz günlerinin vazgeçilmez rosé'si.",
+    personality: `Sen <strong>enerji ve neşe taşıyorsun</strong> — çevren her zaman biraz daha canlı ve renkli. Gülüşün bir odayı değiştirir; kahkahanı duyanlar gülümsemeden edemez. Öküzgözü Blush gibi <strong>hem güçlü hem de hafifsin</strong>: ağırlık taşırken bile dans edebilirsin.\n\nAnı yaşamayı seversin, planlar seni bazen boğar. Bağlantı kurarsın insanlarla — derin ve anlık aynı anda. <strong>Yerli ruhlu, evrenselsin</strong>: Anadolu'nun kırmızı topraklarından beslenirsin ama dünyanın her köşesine uyum sağlarsın.`,
+    food: ["Çilek & taze meyve tabağı", "Hafif salata & nar ekşili sos", "Füme somon & krem peynir"],
+    music: "Miley Cyrus · «Flowers»",
+    musicLink: "https://www.youtube.com/results?search_query=Miley+Cyrus+Flowers",
+    moment: "Arkadaşlarla açık havada — güneş batarken, bardaklar tokuşurken.",
+    sonnet: {
+      label: "Shakespeare · Sonnet VIII",
+      quote: "Mark how one string sweet husband to another\nStrikes each in each by mutual ordering.",
+      translation: "Bak nasıl bir tel diğerine tatlıca eşlik eder; karşılıklı uyumla her biri diğerinde yankılanır.",
+      connection: "Öküzgözü Blush'ın hafif, uyumlu ve dengeli karakteri bu dizenin müzikal armoni imgesiyle örtüşür — neşeli, birlikte çalan, uyumlu.",
+      source: "William Shakespeare, Sonnet VIII"
+    }
+  },
+  sonnet73: {
+    name: "Sonnet 73",
+    subtitle: "Syrah Claret",
+    grape: "Syrah",
+    color: "#8b2635",
+    type: "red",
+    tags: ["Baharatlı", "Karakterli", "Yumuşak", "Biber", "Derin"],
+    desc: "Böğürtlen, karabiber ve tütsü notalarıyla karakteristik Syrah kimliği. Orta gövdeli ve yumuşak tanenli; güçlü ama sert olmayan bir kırmızı.",
+    personality: `Sen <strong>derin ve gizemlisin</strong> — ilk bakışta herkes seni okuyamaz ama zamanla güçlü bir iz bırakırsın. Syrah'ın karabiberi gibi <strong>keskin bir zekân var</strong>; doğruyu söylersin, yumuşatmadan ama incitmeden.\n\nYoğun duygular taşırsın ama bunları hemen sergilemezsin. Sanatla, müzikle veya doğayla güçlü bağların var. Bazen yanlış anlaşılırsın — çünkü derinliğin herkesin alışık olduğu türden değil. <strong>Seni tanıyanlar seni en çok sevenler arasına girer</strong>.`,
+    food: ["Biberli dana rosto", "Közlenmiş biber & patlıcan", "Sert olgunlaşmış peynirler"],
+    music: "Nick Cave · «Into My Arms»",
+    musicLink: "https://www.youtube.com/results?search_query=Nick+Cave+Into+My+Arms",
+    moment: "Sonbahar akşamı — şömine, tek başına, iyi bir kitap ya da derin bir sessizlik.",
+    sonnet: {
+      label: "Shakespeare · Sonnet LXXIII",
+      quote: "That time of year thou mayst in me behold\nWhen yellow leaves, or none, or few, do hang.",
+      translation: "Bende sonbaharı görürsün — sarı yaprakların az ya da hiç kalmadığı o zamanı.",
+      connection: "Syrah'ın derin, olgun ve düşünceli karakteri bu sonbahar imgesiyle buluşur: yıllanmış, sakin ama içinde fırtınalar barındıran bir kırmızı.",
+      source: "William Shakespeare, Sonnet LXXIII"
+    }
+  },
+  sonnet58: {
+    name: "Sonnet 58",
+    subtitle: "Öküzgözü & Cabernet Sauvignon",
+    grape: "Öküzgözü · Cabernet Sauvignon",
+    color: "#6b1a2a",
+    type: "red",
+    tags: ["Dengeli", "Canlı", "Yapılı", "Köklü", "Meraklı"],
+    desc: "Yerli Öküzgözü ile uluslararası Cabernet'nin buluşması: canlı asidite, kiraz ve siyah frenk üzümü, dengeli tanen yapısı. İki dünyanın en iyisi bir kadehteyken.",
+    personality: `Sen <strong>köklerin ve yeniliğin arasında köprüsün</strong>. Gelenekten beslenirsin ama kalıpları körü körüne kabul etmezsin. Nereye gidersen git, <strong>seni sen yapan şeyleri yanında taşırsın</strong> — ailenin sesi, doğduğun toprağın kokusu.\n\nÖte yandan meraklısın, dünyayı tanımak istersin. Cabernet'nin disiplini ve Öküzgözü'nün canlılığı sende bir arada: <strong>kararlı ama esnek, köklü ama açık fikirli</strong>. İnsanlar seni hem güvenilir hem de heyecan verici bulur.`,
+    food: ["Kuzu incik güveç", "Mercimek köfte & nar", "Mantar sote & taze kekik"],
+    music: "Brazzaville · «Bosphorus»",
+    musicLink: "https://www.youtube.com/results?search_query=Brazzaville+Bosphorus",
+    moment: "Aile sofrası — herkesin bir şeyler getirdiği, saatlerce uzayan yemekler.",
+    sonnet: {
+      label: "Shakespeare · Sonnet LVIII",
+      quote: "Being your slave, what should I do but tend\nUpon the hours and times of your desire?",
+      translation: "Senin kölen olarak, arzularının saatlerini ve anlarını beklemekten başka ne yapabilirim ki?",
+      connection: "Bu kupajda iki üzüm de birbirine adanmıştır — Öküzgözü ve Cabernet, birbirinin ritmine uyarak çalışır; sadık, bağlı, uyumlu.",
+      source: "William Shakespeare, Sonnet LVIII"
+    }
+  },
+  sonnet66: {
+    name: "Sonnet 66",
+    subtitle: "Cabernet Sauvignon, Merlot & Syrah",
+    grape: "Cabernet Sauvignon · Merlot · Syrah",
+    color: "#4a1020",
+    type: "red",
+    tags: ["Kompleks", "Güçlü", "Lider", "Klasik", "Uzun Bitiş"],
+    desc: "Üç güçlü üzümün klasik Akdeniz yorumu. Siyah frenk üzümü, böğürtlen, karabiber ve vanilya; dolgun gövde, dengeli tanen, uzun bitiş.",
+    personality: `Sen <strong>doğal bir lidersin</strong> — bunu ilan etmene gerek yok, insanlar zaten sana yöneliyor. Tıpkı üç üzümün bir kupajda mükemmelleşmesi gibi, sen de farklı kişilikleri, fikirleri ve bakış açılarını bir araya getirme yeteneğine sahipsin.\n\nKarmaşık durumları yönetirsin; stres altında bile yolunu kaybetmezsin. <strong>Uzun vadeli düşünürsün</strong> — bugünkü kararının on yıl sonraki yansımalarını görürsün. Güçlüsün, tutarlısın ve zamanla derinleşirsin. <strong>Klasikler gibi: asla modası geçmez.</strong>`,
+    food: ["Közde kuzu pirzola", "Trüflü risotto", "Olgunlaşmış kaşar & ceviz"],
+    music: "Chet Baker · «Almost Blue»",
+    musicLink: "https://www.youtube.com/results?search_query=Chet+Baker+Almost+Blue",
+    moment: "Önemli bir başarının kutlaması — doğru insanlarla, doğru masada.",
+    sonnet: {
+      label: "Shakespeare · Sonnet LXVI",
+      quote: "Tired with all these, for restful death I cry,\nAs, to behold desert a beggar born.",
+      translation: "Tüm bunlardan yoruldum — huzurlu bir sona çağırıyorum; değerin görmezden gelinmesine tanık olmak beni tüketiyor.",
+      connection: "Güçlü ve kompleks bu kırmızının ağırlığı, bu dizenin yüklü tonuyla örtüşür. Hem yorucu hem de büyüleyici — tam bir lider.",
+      source: "William Shakespeare, Sonnet LXVI"
+    }
+  },
+  sonnet23: {
+    name: "Sonnet 23",
+    subtitle: "Foça Karası & Syrah",
+    grape: "Foça Karası · Syrah",
+    color: "#3a1535",
+    type: "red",
+    tags: ["Özgün", "Antik", "Toprak", "Nadir", "Zamansız"],
+    desc: "Anadolu'nun antik üzümü Foça Karası ile Syrah'ın baharatlı karakteri. Kırmızı meyve, toprak tonları ve karabiber aromaları — tarih ve güncellik bir arada.",
+    personality: `Sen <strong>zamansız ve özgünsün</strong>. Herkesin gittiği yoldan değil, izini bıraktığın yoldan yürürsün. Foça Karası gibi <strong>nadir, antik ve kıymetlisin</strong> — seni anlayanlar için paha biçilmez bir hazine.\n\nGeçmişe derin bir saygın var; hikayeleri, kökleri, unutulmuş güzellikleri araştırırsın. Tarihle, kültürle, toprakla bağın güçlü. <strong>Sıradan bulmak zor, unutmak ise imkansız</strong>. Kendine has bir anlatın var — kimseye benzemeyi denemiyor, sadece kendin oluyorsun.`,
+    food: ["Kuzu tandır & közlenmiş sebze", "Ezme & nar ekşili soğan", "Kuru erik & cevizli pekmez"],
+    music: "Nancy Sinatra · «Summer Wine»",
+    musicLink: "https://www.youtube.com/results?search_query=Nancy+Sinatra+Summer+Wine",
+    moment: "Eski bir taş evin avlusu — gece yarısı, yıldızlar açık, zaman durmuş gibi.",
+    sonnet: {
+      label: "Shakespeare · Sonnet XXIII",
+      quote: "O, learn to read what silent love hath writ:\nTo hear with eyes belongs to love's fine wit.",
+      translation: "Sessiz aşkın yazdıklarını okumayı öğren; gözlerle duymak, aşkın zarif zekasına aittir.",
+      connection: "Foça Karası nadiren kullanılan, sessiz ama derin karakterli bir üzümdür — sözsüz ama güçlü bir dili vardır. Onu tanımak için dikkatle bakmak gerekir.",
+      source: "William Shakespeare, Sonnet XXIII"
+    }
+  },
+  sonnet76: {
+    name: "Sonnet 76",
+    subtitle: "Cabernet Sauvignon & Merlot Reserve",
+    grape: "Cabernet Sauvignon · Merlot",
+    color: "#2d0d1a",
+    type: "red",
+    tags: ["Premium", "Fıçı", "Yıllanmış", "Derin", "Sabırlı"],
+    desc: "USCA'nın reserve serisi. Uzun fıçı olgunlaşması, siyah frenk üzümü, vanilya, kakao ve sedir. Dolgun gövde, güçlü tanen, yıllara yayılan bir gelişim.",
+    personality: `Sen <strong>sabırlı ve derinsin</strong> — aceleden hiçbir şey çıkmayacağını çoktan anlamışsın. Tıpkı fıçıda yıllanmış bir şarap gibi, zamanla katman katman zenginleşirsin; her geçen yıl sana bir şey ekler, bir şey eksiltmez.\n\nKendine yatırım yaparsın: kitaplar, deneyimler, insanlar. <strong>Yüzeysel ilişkiler seni tatmin etmez</strong> — ya derinden bağlanırsın ya da bağlanmazsın. Premium şeyler gibisin: değerini bilen herkese açıksın ama her yerde bulunmuyorsun. <strong>Nadirsin, kalıcısın.</strong>`,
+    food: ["Fıstık soslu dana antrikot", "Güçlü olgunlaşmış peynirler", "Bitter çikolata & incir reçeli"],
+    music: "Johann Sebastian Bach · «Cello Suite No. 1»",
+    musicLink: "https://www.youtube.com/results?search_query=Bach+Cello+Suite+No+1",
+    moment: "Kış gecesi — tek başına, şarap, ateş ve sadece düşünceler.",
+    sonnet: {
+      label: "Shakespeare · Sonnet LXXVI",
+      quote: "Why is my verse so barren of new pride,\nSo far from variation or quick change?",
+      translation: "Neden dizelerim yeni süslerden yoksun, değişimden ve ani dönüşümlerden bu kadar uzak?",
+      connection: "Reserve şaraplar klasik ve zamansız bir stili temsil eder — moda peşinde koşmaz, kendi özüne sadık kalır. Sorgulamak bile bir derinlik göstergesidir.",
+      source: "William Shakespeare, Sonnet LXXVI"
+    }
+  },
+  sonnet35: {
+    name: "Sonnet 35",
+    subtitle: "Sweet",
+    grape: "Aromatik Üzümler",
+    color: "#d4b040",
+    type: "sweet",
+    tags: ["Tatlı", "Bal", "Kayısı", "Digestif", "Kutlama"],
+    desc: "Bal, kuru kayısı ve çiçeksi aromalar; ağızda tatlılık ve yeterli asidite dengesi. Keyifli anlara, iyi sohbetlere ve tatlanmayı hak eden günlere yakışan bir şarap.",
+    personality: `Sen <strong>hayatın tadını çıkarmasını biliyorsun</strong> — hem sana hem de yanındakilere. İnsanlara sıcaklık ve şefkat verirsin; seninle geçen vakit her zaman biraz daha güzel hissettiriyor. Tatlı şarap gibi <strong>ilk bakışta neşelendirir</strong>, ama asidite dengesi gibi derinliğini yavaş yavaş hissettirirsin.\n\nHayatın küçük ödüllerine inanırsın: güzel bir akşam yemeği, beklenmedik bir kahkaha, eski bir arkadaşın sesi. <strong>Şimdiyi kutlarsın</strong>, çünkü şimdi de kutlanmayı hak ediyor. Yanında olmak insanlara iyi geliyor.`,
+    food: ["Bal & cevizli künefe", "Kuru meyve & badem tabağı", "Gorgonzola & taze incir"],
+    music: "Édith Piaf · «La Vie en Rose»",
+    musicLink: "https://www.youtube.com/results?search_query=Edith+Piaf+La+Vie+en+Rose",
+    moment: "Uzun bir günün sonunda — ayakları uzatmış, gözler yarı kapalı, içi dolu.",
+    sonnet: {
+      label: "Shakespeare · Sonnet XXXV",
+      quote: "All men make faults, and even I in this,\nAuthorizing thy trespass with compare.",
+      translation: "Her insan hata yapar — ben de dahil; senin hataları başkalarıyla kıyaslayarak meşrulaştırıyorum.",
+      connection: "Tatlı şaraplar yumuşak, affedici ve kucaklayıcıdır — tıpkı bu dizenin hatayı kabullenen, yargılamayan sıcaklığı gibi.",
+      source: "William Shakespeare, Sonnet XXXV"
+    }
+  }
+};
+
+const letters = ['A', 'B', 'C', 'D', 'E'];
+
+const questions = [
+  {
+    category: "Kişilik",
+    text: "Bir misafir geldiğinde sen nasıl karşılarsın?",
+    sub: "İlk içgüdüsel tepkini seç",
+    options: [
+      { text: "Hemen kollarını açar, sıcak bir kucaklamayla karşılarsın", sub: "Enerji ve neşeyle", scores: { sonnet8: 3, sonnet5: 2, sonnet35: 2, sonnet116: 1 } },
+      { text: "En güzel bardağı çıkarır, ona özel bir şey hazırlarsın", sub: "Özen ve ayrıntıyla", scores: { sonnet99: 3, sonnet76: 2, sonnet116: 2, sonnet66: 1 } },
+      { text: "Kapıyı açar, \"buyur\" dersin — gerisi kendiliğinden akar", sub: "Rahat ve doğal, gösteriş yok", scores: { sonnet73: 3, sonnet58: 2, sonnet23: 1 } },
+      { text: "Gözlemler, önce ölçer biçersin — sonra yavaş yavaş sıcaklaşırsın", sub: "Temkinli ama bağ kurduğunda gerçek", scores: { sonnet23: 3, sonnet76: 2, sonnet66: 1 } },
+      { text: "\"Neden haber vermeden geldin?\" diye düşünürsün ama gülümsersin", sub: "Plansızlık biraz gerer ama yine de idare edersin", scores: { sonnet116: 2, sonnet66: 2, sonnet99: 1, sonnet58: 1 } }
+    ]
+  },
+  {
+    category: "Sabah Ritüeli",
+    text: "Seni en iyi tanımlayan sabah hangisi?",
+    sub: "İlk uyanıştaki duyguyu hisset",
+    options: [
+      { text: "Pencereyi açar, sabah havasını ve kuş seslerini içine çekersin", sub: "Güne doğayla başlarsın", scores: { sonnet5: 3, sonnet8: 2, sonnet35: 1 } },
+      { text: "Kahveni yavaş içer, günün planını sessizce düşünürsün", sub: "Metodiksin, hazırlanmaktan zevk alırsın", scores: { sonnet66: 3, sonnet76: 2, sonnet116: 2 } },
+      { text: "Yatakta uzanır, düşüncelerin serbestçe gezinmesine izin verirsin", sub: "Kalkman zaman alır ama o süre verimli geçer", scores: { sonnet73: 3, sonnet23: 2, sonnet99: 1 } },
+      { text: "Güne heyecanla atlarsın — ne getirecek diye sabırsızlanırsın", sub: "Anlık ve enerjik", scores: { sonnet8: 3, sonnet5: 2, sonnet35: 2 } },
+      { text: "Sabah olmasa da olur — geceleri zaten çok daha iyi çalışırsın", sub: "Alışılmış ritme uymak zorunda değilsin", scores: { sonnet73: 2, sonnet23: 2, sonnet76: 1, sonnet99: 1 } }
+    ]
+  },
+  {
+    category: "Yolculuk",
+    text: "Seyahat ederken içinde ne hissedersin?",
+    sub: "Seyahatin özünü bul",
+    options: [
+      { text: "Yeni tatlar, yeni kokular — dünyanın aromasını içine çekmek istersin", sub: "Merak ve duyusallık", scores: { sonnet5: 3, sonnet99: 2, sonnet23: 2 } },
+      { text: "Tarihi bir yer bulur, geçmişin izlerini saatlerce takip edersin", sub: "Derinlik ve anlam arayışı", scores: { sonnet23: 3, sonnet76: 2, sonnet66: 1 } },
+      { text: "Yerel insanlarla bağlantı kurarsın, hikayelerini dinlemekten keyif alırsın", sub: "İnsan bağlantısı ve empati", scores: { sonnet58: 3, sonnet35: 2, sonnet8: 2 } },
+      { text: "En iyi restoranı araştırırsın — deneyimin kalitesini yaşamak için gidiyorsun zaten", sub: "Lüks ve seçicilik", scores: { sonnet99: 3, sonnet76: 3, sonnet66: 1 } },
+      { text: "Planı yarıda bırakıp nereye götürürse oraya gidersin", sub: "Spontanlık ve özgürlük — güvenli alan dışında kendini bulursun", scores: { sonnet8: 3, sonnet5: 2, sonnet73: 2, sonnet35: 1 } }
+    ]
+  },
+  {
+    category: "Zorluklar",
+    text: "Zor bir durumla karşılaştığında ilk tepkin ne olur?",
+    sub: "En dürüst cevabı seç",
+    options: [
+      { text: "Sakin kalır, adım adım çözüm üretirsin", sub: "Stratejik ve kontrollüsün", scores: { sonnet66: 3, sonnet76: 2, sonnet116: 2 } },
+      { text: "Duygulanırsın ama bu seni harekete geçirir", sub: "Duygusal ama güçlüsün", scores: { sonnet73: 2, sonnet8: 2, sonnet58: 2, sonnet5: 1 } },
+      { text: "Farklı perspektiflerden bakarsın, alışılmadık bir yol bulursun", sub: "Yaratıcı ve özgünsün", scores: { sonnet23: 3, sonnet5: 2, sonnet116: 1 } },
+      { text: "İnsanları bir araya getirir, birlikte çözmeyi tercih edersin", sub: "Koordinatörsün — tek başına çözmen gerekmez", scores: { sonnet116: 3, sonnet35: 2, sonnet66: 2 } },
+      { text: "Önce bir köşeye çekilip sindirirsin — sonra harekete geçersin", sub: "İçinde pişirir, geç ama sağlam adım atarsın", scores: { sonnet76: 3, sonnet23: 2, sonnet73: 2, sonnet99: 1 } }
+    ]
+  },
+  {
+    category: "Müzik & Ruh",
+    text: "Şu an bir şarkı çalacak olsa, hangisi olsun?",
+    sub: "İçin hangi ritme vuruyor?",
+    options: [
+      { text: "Hafif bir Türk folk melodisi — topraklardan yükselen bir ses", sub: "Köklü, aromatik, özgün", scores: { sonnet23: 3, sonnet58: 2, sonnet5: 2 } },
+      { text: "Caz — sürprizler, özgürlük ve anlık doğaçlama", sub: "Spontan ve çok katmanlı", scores: { sonnet73: 3, sonnet99: 2, sonnet5: 1 } },
+      { text: "Klasik müzik — her nota yerli yerinde, zaman dışı bir güzellik", sub: "Zamansız, yapılı, derin", scores: { sonnet76: 3, sonnet66: 3, sonnet116: 1 } },
+      { text: "Enerjik, ritimli bir şey — hareket ettiriyor, hissettiriyor", sub: "Canlı, ferah, neşeli", scores: { sonnet8: 3, sonnet5: 2, sonnet35: 2 } },
+      { text: "Aslında sessizliği tercih edersin — müzik yokken de dinginsin", sub: "Kendi içindeki ritme yetersin", scores: { sonnet76: 2, sonnet23: 2, sonnet73: 2 } }
+    ]
+  },
+  {
+    category: "İlişkiler",
+    text: "Yakın çevrendeki insanlar seni nasıl tanımlar?",
+    sub: "En çok ne duyarsın?",
+    options: [
+      { text: "\"Güvenilir ve tutarlısın — sana söz verilir, tutulur\"", sub: "Derin bağlar, sadakat", scores: { sonnet66: 3, sonnet76: 2, sonnet116: 2 } },
+      { text: "\"Seninle her sohbet farklı — beklenmedik bir şeyler öğreniyorum\"", sub: "Özgünlük ve derinlik", scores: { sonnet23: 3, sonnet73: 2, sonnet99: 2 } },
+      { text: "\"Seni gördüğümde moralim düzeliyor — iyi enerji taşıyorsun\"", sub: "Sıcaklık ve iyimserlik", scores: { sonnet8: 3, sonnet5: 2, sonnet35: 3 } },
+      { text: "\"Zor olduğunda yanımdasın — ama bazen nerede olduğunu bilemiyorum\"", sub: "Değerlisin ama ulaşmak her zaman kolay değil", scores: { sonnet73: 3, sonnet23: 2, sonnet76: 2 } },
+      { text: "\"Ne istediğini tam biliyorsun — seninle aynı sayfada olmak kolay\"", sub: "Kararlılık ve netlik", scores: { sonnet99: 3, sonnet58: 2, sonnet66: 2 } }
+    ]
+  },
+  {
+    category: "Akşam Yemeği",
+    text: "İdeal bir akşam yemeğinde ne tercih edersin?",
+    sub: "İlk aklına geleni seç",
+    options: [
+      { text: "Taze deniz ürünleri, hafif mezeler — Ege sofrasının bütünlüğü", sub: "Ferah, otantik, yerel", scores: { sonnet5: 3, sonnet8: 2, sonnet116: 2 } },
+      { text: "Aromalı soslar, kremalı bir yemek — her ısırık bir deneyim", sub: "Yoğun, dolu, aromatik", scores: { sonnet99: 3, sonnet116: 2, sonnet66: 1 } },
+      { text: "Izgara et ya da kuzu — güçlü, sade ve doyurucu", sub: "Karakterli ve tatmin edici", scores: { sonnet66: 3, sonnet73: 2, sonnet58: 2 } },
+      { text: "Peynir tabağı ve tatlı bir şey — yemeği böyle bitirirsin", sub: "Keyifli final, masadan kalkmak gelmez", scores: { sonnet35: 3, sonnet76: 2, sonnet99: 1 } },
+      { text: "Yemek önemli ama asıl önemli olan yanındaki insanlar — ne yediğin geri planda kalır", sub: "Masanın anlamı bağlantıdır", scores: { sonnet35: 2, sonnet58: 2, sonnet8: 2, sonnet116: 1 } }
+    ]
+  },
+  {
+    category: "Zaman & Varlık",
+    text: "Zamanla ilişkin nasıl?",
+    sub: "Hangisi daha çok seni anlatıyor?",
+    options: [
+      { text: "Şu an içindesin — anı doldurmayı gelecek planlamaya tercih edersin", sub: "Spontan, canlı, anlık", scores: { sonnet8: 3, sonnet5: 2, sonnet35: 2 } },
+      { text: "Yavaş ve sabırlısın — iyi şeylerin zaman aldığını bilirsin", sub: "Derinlik ve olgunluk", scores: { sonnet76: 3, sonnet23: 2, sonnet66: 2, sonnet99: 2 } },
+      { text: "Geçmişle şimdi arasında kurarsın kendini — köklerin seni besler", sub: "Tarihsel, özgün, köklü", scores: { sonnet23: 3, sonnet58: 2, sonnet73: 1 } },
+      { text: "Dengeyi korursun — hem planlarsın hem de akışa bırakırsın", sub: "Harmonik ve uyumlu", scores: { sonnet116: 3, sonnet58: 2, sonnet66: 1 } },
+      { text: "Zamanın geçişini bazen hiç fark etmezsin — daldığında dünya durur", sub: "Odaklandığında kaybolursun, bu hem gücün hem zayıflığın", scores: { sonnet73: 3, sonnet99: 2, sonnet23: 1, sonnet76: 1 } }
+    ]
+  },
+  {
+    category: "Şu An",
+    text: "Şu an nasıl hissediyorsun?",
+    sub: "İlk aklına geleni seç — bu an için",
+    options: [
+      { text: "Enerjik ve neşeliyim — içim dolu, dışarı vurmak istiyor", sub: "Canlı ve coşkulu", scores: { sonnet8: 3, sonnet5: 2, sonnet35: 2 } },
+      { text: "Sakin ve huzurluyum — her şey yerli yerinde", sub: "Dingin ve dengeli", scores: { sonnet116: 3, sonnet99: 2, sonnet35: 1 } },
+      { text: "Düşünceli ve içe dönüğüm — kafam başka yerde", sub: "Derin ve sessiz", scores: { sonnet73: 3, sonnet76: 2, sonnet23: 2 } },
+      { text: "Nostaljik bir ruh halindeyim — eski bir şeyler özlüyorum", sub: "Köklere dönük, melankolik", scores: { sonnet23: 3, sonnet58: 2, sonnet76: 1 } },
+      { text: "Meraklı ve açık — ne geleceğini bilmiyorum ama heyecanlıyım", sub: "Keşifçi ve özgür", scores: { sonnet5: 3, sonnet99: 2, sonnet58: 2 } }
+    ]
+  }
+];
+
+let currentQ = 0;
+let scores = {};
+
+function startQuiz() {
+  Object.keys(wines).forEach(k => scores[k] = 0);
+  currentQ = 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  showScreen('screen-question');
+  const q = questions[currentQ];
+  const total = questions.length;
+  document.getElementById('q-counter').textContent = `${currentQ + 1} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${(currentQ / total) * 100}%`;
+  document.getElementById('q-category').textContent = q.category;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-sub').textContent = q.sub;
+
+  // Animate wine glass fill
+  const fillRect = document.getElementById('wine-fill-rect');
+  if (fillRect) {
+    const bowlH = 40; // total bowl height in SVG units
+    const fillRatio = currentQ / total;
+    const fillH = fillRatio * bowlH;
+    const fillY = 44 - fillH;
+    // Pick wine colour based on progress
+    const wineColors = ['#e8a0b4','#d4728a','#8b2635','#6b1a2a','#4a1020','#3a1535','#2d0d1a'];
+    const colorIdx = Math.min(Math.floor(fillRatio * wineColors.length), wineColors.length - 1);
+    fillRect.setAttribute('fill', wineColors[colorIdx]);
+    fillRect.setAttribute('y', fillY);
+    fillRect.setAttribute('height', fillH);
+  }
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `
+      <span class="option-letter">${letters[i]}</span>
+      <span class="option-text">
+        ${opt.text}
+        ${opt.sub ? `<span class="option-sub">${opt.sub}</span>` : ''}
+      </span>`;
+
+    // Track touch start position to detect scroll vs tap
+    let touchStartY = 0;
+    let touchStartX = 0;
+
+    btn.addEventListener('touchstart', function(e) {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    }, {passive: true});
+
+    btn.addEventListener('touchend', (function(o) {
+      return function(e) {
+        const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+        const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
+        // If moved more than 10px — it's a scroll, not a tap
+        if (deltaY > 10 || deltaX > 10) return;
+        e.preventDefault();
+        selectOption(o);
+      };
+    })(opt), {passive: false});
+
+    btn.addEventListener('click', (function(o) {
+      return function(e) { e.preventDefault(); selectOption(o); };
+    })(opt));
+
+    grid.appendChild(btn);
+  });
+}
+
+function selectOption(opt) {
+  Object.entries(opt.scores).forEach(([key, pts]) => {
+    scores[key] = (scores[key] || 0) + pts;
+  });
+  currentQ++;
+  if (currentQ < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const wine = wines[winner];
+  const typeLabel = { white: 'Beyaz Şarap', rose: 'Rosé Şarap', sweet: 'Tatlı Şarap', red: 'Kırmızı Şarap' };
+
+  document.getElementById('result-name').textContent = `${wine.name} — ${wine.subtitle}`;
+  document.getElementById('result-name').style.color = wine.color;
+  document.getElementById('result-subtitle').textContent = `${typeLabel[wine.type]} · USCA Şarapçılık`;
+  document.getElementById('result-personality').innerHTML = wine.personality.replace(/\n/g, '<br>');
+  document.getElementById('result-swatch').style.background = wine.color;
+  document.getElementById('result-grape').textContent = wine.grape;
+  document.getElementById('result-tags').innerHTML = wine.tags.map(t => `<span class="wine-tag">${t}</span>`).join('');
+  document.getElementById('result-desc').textContent = wine.desc;
+
+  // Shakespeare sonnet block
+  const s = wine.sonnet;
+  document.getElementById('sonnet-block').style.borderLeftColor = wine.color;
+  document.getElementById('sonnet-label').textContent = s.label;
+  document.getElementById('sonnet-quote').innerHTML = s.quote.replace(/\n/g, '<br>');
+  document.getElementById('sonnet-translation').textContent = s.translation;
+  document.getElementById('sonnet-connection').textContent = s.connection;
+  document.getElementById('sonnet-source').textContent = s.source;
+
+  // Extras grid
+  const extras = document.getElementById('extras-grid');
+  extras.innerHTML = `
+    <div class="extra-card">
+      <div class="extra-card-label"><span>🍽</span> Bu Akşam Ne Yesen?</div>
+      <ul class="extra-food-list">
+        ${wine.food.map(f => `<li>${f}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="extra-card">
+      <div class="extra-card-label"><span>🎵</span> Eşlik Edecek Müzik</div>
+      <p class="extra-music">${wine.music}</p>
+      ${wine.musicLink ? `<a href="${wine.musicLink}" target="_blank" rel="noopener" class="music-link-btn">▶ YouTube'da Dinle</a>` : ''}
+    </div>
+    <div class="extra-card full-width">
+      <div class="extra-card-label"><span>✦</span> En İyi İçileceği An</div>
+      <p class="extra-moment">${wine.moment}</p>
+    </div>
+  `;
+
+  // Store for sharing
+  window._lastWine = wine;
+
+  showScreen('screen-result');
+  // Draw after screen is visible
+  setTimeout(() => drawCard(wine), 200);
+}
+
+
+const LOGO_B64 = 'data:image/png;base64,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';
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      lines.push(line.trim());
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+  return lines.length;
+}
+
+function drawCard(wine) {
+  var canvas = document.getElementById('result-card-canvas');
+  var W = 900, H = 1280;
+  canvas.width = W;
+  canvas.height = H;
+  var ctx = canvas.getContext('2d');
+
+  // ── BACKGROUND: warm parchment ──
+  var bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0,   '#f8f2e8');
+  bg.addColorStop(0.5, '#f5ede0');
+  bg.addColorStop(1,   '#f0e6d6');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Vignette edges
+  var vig = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.8);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(100,65,20,0.08)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── DOUBLE BORDER ──
+  ctx.strokeStyle = 'rgba(130,90,35,0.5)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(24, 24, W-48, H-48);
+  ctx.strokeStyle = 'rgba(130,90,35,0.18)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(34, 34, W-68, H-68);
+
+  // ── CORNER ORNAMENTS ──
+  function corner(cx, cy, sx, sy) {
+    var a = 44;
+    ctx.strokeStyle = 'rgba(130,90,35,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx + sx*a, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy*a); ctx.stroke();
+    // small diamond
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(Math.PI/4);
+    ctx.fillStyle = 'rgba(130,90,35,0.4)';
+    ctx.fillRect(-3.5, -3.5, 7, 7);
+    ctx.restore();
+  }
+  corner(44, 44, 1, 1);
+  corner(W-44, 44, -1, 1);
+  corner(44, H-44, 1, -1);
+  corner(W-44, H-44, -1, -1);
+
+  // ── GOLD LINE HELPER ──
+  function goldLine(y, alpha) {
+    alpha = alpha || 0.45;
+    var g = ctx.createLinearGradient(80, 0, W-80, 0);
+    g.addColorStop(0,    'rgba(130,90,35,0)');
+    g.addColorStop(0.15, 'rgba(130,90,35,' + alpha + ')');
+    g.addColorStop(0.85, 'rgba(130,90,35,' + alpha + ')');
+    g.addColorStop(1,    'rgba(130,90,35,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(80, y, W-160, 1.2);
+  }
+
+  // ── DRAW USCA TEXT LOGO (no image — drawn with canvas text) ──
+  function drawUSCALogo(cx, topY) {
+    // "USCA" in stencil-like serif
+    ctx.textAlign = 'center';
+    ctx.font = '700 90px "Playfair Display", serif';
+    ctx.fillStyle = 'rgba(105,68,28,0.82)';
+    ctx.fillText('USCA', cx, topY + 82);
+
+    // Thin rule under USCA
+    var ruleW = 120;
+    ctx.fillStyle = 'rgba(105,68,28,0.35)';
+    ctx.fillRect(cx - ruleW/2, topY + 94, ruleW, 1);
+
+    // Grape leaf ornament — drawn as path
+    ctx.save();
+    ctx.translate(cx, topY + 120);
+    ctx.scale(0.9, 0.9);
+    ctx.fillStyle = 'rgba(105,68,28,0.55)';
+
+    // Stylised leaf shape
+    ctx.beginPath();
+    ctx.moveTo(0, -16);
+    ctx.bezierCurveTo(10, -14, 18, -4, 16, 6);
+    ctx.bezierCurveTo(14, 14, 6, 18, 0, 16);
+    ctx.bezierCurveTo(-6, 18, -14, 14, -16, 6);
+    ctx.bezierCurveTo(-18, -4, -10, -14, 0, -16);
+    ctx.fill();
+
+    // Leaf vein
+    ctx.strokeStyle = 'rgba(248,242,232,0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, -13); ctx.lineTo(0, 12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(-8, 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(8, 4); ctx.stroke();
+
+    // Small grape clusters (dots)
+    var grapeColor = 'rgba(105,68,28,0.45)';
+    ctx.fillStyle = grapeColor;
+    var grapes = [{x:20,y:-4,r:4},{x:26,y:2,r:3.5},{x:22,y:8,r:3},{x:28,y:-10,r:3},{x:32,y:-4,r:3.5}];
+    grapes.forEach(function(g) {
+      ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, Math.PI*2); ctx.fill();
+    });
+    // Tendril
+    ctx.strokeStyle = 'rgba(105,68,28,0.4)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(18, -14);
+    ctx.bezierCurveTo(22, -22, 30, -20, 28, -12);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // ── WINE COLOR ──
+  var barCol = wine.color;
+  var lights = ['#e8d8a0','#e8cc88','#d4c87a','#d4b040'];
+  if (lights.indexOf(barCol) !== -1) barCol = '#9a7012';
+
+  // Draw logo zone
+  drawUSCALogo(W/2, 62);
+
+  // Micro label
+  ctx.font = '400 16px "Didact Gothic", sans-serif';
+  ctx.fillStyle = 'rgba(105,68,28,0.5)';
+  ctx.textAlign = 'center';
+  ctx.fillText('K \u0130 \u015e \u0130 L \u0130 K   \u2022   \u015e A R A P   T E S T \u0130', W/2, 258);
+
+  goldLine(276, 0.4);
+
+  // Wine type colour bar
+  var bW = 56;
+  ctx.fillStyle = barCol;
+  ctx.fillRect((W-bW)/2, 288, bW, 5);
+
+  // "senin şarabın"
+  ctx.font = 'italic 300 27px "Cormorant Garamond", serif';
+  ctx.fillStyle = 'rgba(105,68,28,0.58)';
+  ctx.textAlign = 'center';
+  ctx.fillText('senin \u015farab\u0131n', W/2, 336);
+
+  // ── WINE NAME ──
+  ctx.font = 'italic 700 90px "Playfair Display", serif';
+  ctx.fillStyle = barCol;
+  ctx.textAlign = 'center';
+  ctx.fillText(wine.name, W/2, 430);
+
+  // Subtitle
+  ctx.font = 'italic 400 40px "Cormorant Garamond", serif';
+  ctx.fillStyle = 'rgba(95,62,22,0.7)';
+  ctx.textAlign = 'center';
+  ctx.fillText('\u2014 ' + wine.subtitle + ' \u2014', W/2, 484);
+
+  goldLine(516, 0.4);
+
+  // Personality
+  var clean = wine.personality.replace(/<[^>]+>/g, '');
+  var sent = clean.split('.')[0].trim() + '.';
+  ctx.font = 'italic 300 29px "Cormorant Garamond", serif';
+  ctx.fillStyle = 'rgba(52,32,12,0.78)';
+  ctx.textAlign = 'center';
+  wrapText(ctx, sent, W/2, 562, W-210, 49);
+
+  goldLine(716, 0.4);
+
+  // Decorative quote mark
+  ctx.font = 'italic 200px "Playfair Display", serif';
+  ctx.fillStyle = 'rgba(130,90,35,0.06)';
+  ctx.textAlign = 'left';
+  ctx.fillText('\u201C', 40, 862);
+
+  // Sonnet Turkish
+  ctx.font = 'italic 500 31px "Playfair Display", serif';
+  ctx.fillStyle = 'rgba(52,32,12,0.82)';
+  ctx.textAlign = 'center';
+  wrapText(ctx, wine.sonnet.translation, W/2, 790, W-230, 48);
+
+  // Source
+  ctx.font = '400 17px "Didact Gothic", sans-serif';
+  ctx.fillStyle = 'rgba(105,68,28,0.62)';
+  ctx.textAlign = 'center';
+  ctx.fillText('\u2014 ' + wine.sonnet.source, W/2, 910);
+
+  goldLine(H-84, 0.4);
+
+  // Footer
+  ctx.font = 'italic 400 26px "Cormorant Garamond", serif';
+  ctx.fillStyle = 'rgba(105,68,28,0.52)';
+  ctx.textAlign = 'center';
+  ctx.fillText('USCA \u015earap\u00e7\u0131l\u0131k', W/2, H-50);
+
+  // Tiny dot ornament
+  ctx.beginPath(); ctx.arc(W/2, H-38, 2.5, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(130,90,35,0.38)'; ctx.fill();
+
+  // Reveal download + share
+  var btn = document.getElementById('btn-download');
+  if (btn) {
+    btn.style.display = 'inline-flex';
+    var _sy = 0;
+    btn.addEventListener('touchstart', function(e){ _sy = e.touches[0].clientY; }, {passive:true});
+    btn.addEventListener('touchend', function(e){
+      if (Math.abs(e.changedTouches[0].clientY - _sy) > 10) return;
+      e.preventDefault(); downloadCard();
+    }, {passive:false});
+    btn.addEventListener('click', function(e){ e.preventDefault(); downloadCard(); });
+  }
+  var panel = document.getElementById('share-panel');
+  if (panel) panel.style.display = 'block';
+}
+
+function downloadCard() {
+  const canvas = document.getElementById('result-card-canvas');
+  const link = document.createElement('a');
+  link.download = 'usca-sarap-sonucum.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function shareResult() {
+  // handled by individual share buttons
+}
+
+function doShare(platform) {
+  var wine = window._lastWine;
+  if (!wine) return;
+  var canvas = document.getElementById('result-card-canvas');
+  var url = 'https://egegiraylar.github.io/USCA-Wine-Test/';
+  var text = 'USCA \u015earap Testi sonucum: ' + wine.name + ' \u2014 ' + wine.subtitle + ' \uD83C\uDF77\n' + url;
+  var feedback = document.getElementById('share-feedback');
+
+  function showFeedback(msg) {
+    if (feedback) {
+      feedback.textContent = msg;
+      feedback.classList.add('visible');
+      setTimeout(function(){ feedback.classList.remove('visible'); }, 3000);
+    }
+  }
+
+  // Try native Web Share API with image (works on iOS Safari + Android)
+  if (platform === 'native' || platform === 'whatsapp' || platform === 'instagram') {
+    if (canvas && navigator.share && navigator.canShare) {
+      canvas.toBlob(function(blob) {
+        var file = new File([blob], 'usca-sarap-sonucum.png', {type: 'image/png'});
+        if (navigator.canShare({files:[file]})) {
+          navigator.share({
+            files: [file],
+            title: 'USCA \u015earap Testi',
+            text: text
+          }).catch(function(){});
+          return;
+        }
+        // fallback if canShare fails
+        fallbackShare(platform, text, url, showFeedback);
+      }, 'image/png');
+      return;
+    }
+    fallbackShare(platform, text, url, showFeedback);
+    return;
+  }
+
+  if (platform === 'twitter') {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+    return;
+  }
+
+  if (platform === 'copy') {
+    // Copy image to clipboard if supported, else copy text
+    if (canvas && window.ClipboardItem) {
+      canvas.toBlob(function(blob) {
+        try {
+          navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(function(){
+            showFeedback('Kart g\u00f6rseli kopyaland\u0131 \u2714');
+          }).catch(function(){
+            copyText(text, url, showFeedback);
+          });
+        } catch(e) {
+          copyText(text, url, showFeedback);
+        }
+      }, 'image/png');
+    } else {
+      copyText(text, url, showFeedback);
+    }
+  }
+}
+
+function fallbackShare(platform, text, url, showFeedback) {
+  if (platform === 'whatsapp') {
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+  } else if (platform === 'instagram') {
+    copyText(text, url, showFeedback);
+    showFeedback('Metin kopyaland\u0131 \u2714 Instagram\u2019a yap\u0131\u015ft\u0131r');
+  }
+}
+
+function copyText(text, url, showFeedback) {
+  var full = text + '\n' + url;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(full).then(function(){
+      if (showFeedback) showFeedback('Kopyaland\u0131 \u2714');
+    }).catch(function(){ prompt('Kopyala:', full); });
+  } else {
+    prompt('Kopyala:', full);
+  }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function restartQuiz() {
+  showScreen('screen-intro');
+}
+
+// Butonları bağla — Safari + file:// + Netlify hepsinde çalışır
+function wireButtons() {
+  function safeTap(el, fn) {
+    if (!el) return;
+    var sy = 0, sx = 0;
+    el.addEventListener('touchstart', function(e) {
+      sy = e.touches[0].clientY;
+      sx = e.touches[0].clientX;
+    }, {passive: true});
+    el.addEventListener('touchend', function(e) {
+      var dy = Math.abs(e.changedTouches[0].clientY - sy);
+      var dx = Math.abs(e.changedTouches[0].clientX - sx);
+      if (dy > 10 || dx > 10) return;
+      e.preventDefault();
+      fn();
+    }, {passive: false});
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      fn();
+    });
+  }
+
+  safeTap(document.getElementById('btn-start'), startQuiz);
+  safeTap(document.getElementById('btn-restart'), restartQuiz);
+
+  var platforms = ['whatsapp','twitter','instagram','copy'];
+  platforms.forEach(function(p) {
+    safeTap(document.getElementById('share-' + p), function() { doShare(p); });
+  });
+}
+
+// Hem DOMContentLoaded hem readyState hem window.onload — hangisi önce tetiklenirse
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', wireButtons);
+} else {
+  wireButtons();
+}
+window.addEventListener('load', function() {
+  wireButtons();
+});
+</script>
+</body>
+</html>
